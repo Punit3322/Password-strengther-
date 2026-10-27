@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Strength Analyzer</title>
+    <!-- Google Fonts & FontAwesome for Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), var(--accent-glow);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header .icon-box {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px auto;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.4);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Input Group */
+        .input-group {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 45px 16px 18px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            color: var(--text-primary);
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        }
+
+        .input-group .toggle-visibility {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+
+        .input-group .toggle-visibility:hover {
+            color: var(--text-primary);
+        }
+
+        /* Strength Meter Indicator Bars */
+        .meter-container {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 24px;
+        }
+
+        .meter-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            transition: background 0.3s ease;
+        }
+
+        .strength-text {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+
+        #strength-label {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Requirements Checklist */
+        .requirements {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 24px;
+        }
+
+        .requirements h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .req-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .req-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            transition: color 0.3s;
+        }
+
+        .req-item i {
+            font-size: 12px;
+        }
+
+        .req-item.met {
+            color: #34d399;
+        }
+
+        /* Generator Box */
+        .generator-box {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px dashed rgba(99, 102, 241, 0.4);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .generator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .generator-header span {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .suggested-pwd-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: #a5b4fc;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="icon-box">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h1>Password Analyzer</h1>
+            <p>Evaluate your password security and generate strong alternatives</p>
+        </div>
+
+        <!-- Password Input -->
+        <div class="input-group">
+            <input type="password" id="password-input" placeholder="Enter your password..." autocomplete="new-password">
+            <button class="toggle-visibility" id="toggle-btn" onclick="togglePasswordVisibility()">
+                <i class="fa-regular fa-eye" id="eye-icon"></i>
+            </button>
+        </div>
+
+        <!-- Strength Meter Bar -->
+        <div class="meter-container">
+            <div class="meter-bar" id="bar-1"></div>
+            <div class="meter-bar" id="bar-2"></div>
+            <div class="meter-bar" id="bar-3"></div>
+            <div class="meter-bar" id="bar-4"></div>
+        </div>
+
+        <div class="strength-text">
+            <span>Security Level:</span>
+            <span id="strength-label">Enter Password</span>
+        </div>
+
+        <!-- Criteria Checklist -->
+        <div class="requirements">
+            <h3>Password Requirements</h3>
+            <ul class="req-list">
+                <li class="req-item" id="req-length"><i class="fa-solid fa-circle-xmark"></i> 8+ Characters</li>
+                <li class="req-item" id="req-upper"><i class="fa-solid fa-circle-xmark"></i> Uppercase Letter</li>
+                <li class="req-item" id="req-lower"><i class="fa-solid fa-circle-xmark"></i> Lowercase Letter</li>
+                <li class="req-item" id="req-number"><i class="fa-solid fa-circle-xmark"></i> Number (0-9)</li>
+                <li class="req-item" id="req-special"><i class="fa-solid fa-circle-xmark"></i> Special Char (@$!%)</li>
+            </ul>
+        </div>
+
+        <!-- Secure Password Suggestion Box -->
+        <div class="generator-box">
+            <div class="generator-header">
+                <span>Need a secure alternative?</span>
+                <button class="btn" onclick="generateAndShowPassword()"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate</button>
+            </div>
+            <div class="suggested-pwd-display">
+                <span id="generated-password-text">Click generate above</span>
+                <button class="btn btn-outline" style="padding: 6px 10px; font-size: 12px;" onclick="copyPassword()"><i class="fa-regular fa-copy"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const passwordInput = document.getElementById('password-input');
+        const eyeIcon = document.getElementById('eye-icon');
+        const strengthLabel = document.getElementById('strength-label');
+        const bars = [
+            document.getElementById('bar-1'),
+            document.getElementById('bar-2'),
+            document.getElementById('bar-3'),
+            document.getElementById('bar-4')
+        ];
+
+        const reqs = {
+            length: document.getElementById('req-length'),
+            upper: document.getElementById('req-upper'),
+            lower: document.getElementById('req-lower'),
+            number: document.getElementById('req-number'),
+            special: document.getElementById('req-special')
+        };
+
+        function togglePasswordVisibility() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        passwordInput.addEventListener('input', () => {
+            const val = passwordInput.value;
+            evaluatePassword(val);
+        });
+
+        function evaluatePassword(pwd) {
+            let score = 0;
+
+            // Check rules
+            const hasLength = pwd.length >= 8;
+            const hasUpper = /[A-Z]/.test(pwd);
+            const hasLower = /[a-z]/.test(pwd);
+            const hasNumber = /[0-9]/.test(pwd);
+            const hasSpecial = /[@$!%*?&^_#]/.test(pwd);
+
+            updateRequirementStatus(reqs.length, hasLength);
+            updateRequirementStatus(reqs.upper, hasUpper);
+            updateRequirementStatus(reqs.lower, hasLower);
+            updateRequirementStatus(reqs.number, hasNumber);
+            updateRequirementStatus(reqs.special, hasSpecial);
+
+            if (hasLength) score++;
+            if (hasUpper && hasLower) score++;
+            if (hasNumber) score++;
+            if (hasSpecial && pwd.length >= 12) score++;
+
+            if (pwd.length === 0) {
+                resetMeter();
+                return;
+            }
+
+            updateMeter(score, pwd);
+        }
+
+        function updateRequirementStatus(element, isMet) {
+            const icon = element.querySelector('i');
+            if (isMet) {
+                element.classList.add('met');
+                icon.className = 'fa-solid fa-circle-check';
+            } else {
+                element.classList.remove('met');
+                icon.className = 'fa-solid fa-circle-xmark';
+            }
+        }
+
+        function resetMeter() {
+            bars.forEach(bar => bar.style.background = 'rgba(255, 255, 255, 0.1)');
+            strengthLabel.textContent = 'Enter Password';
+            strengthLabel.style.color = 'var(--text-secondary)';
+        }
+
+        function updateMeter(score, pwd) {
+            bars.forEach(bar => bar.style.background = 'rgba(255, 255, 255, 0.1)');
+            
+            let color = '#ef4444'; // Red
+            let text = 'Very Weak';
+
+            if (score === 1) {
+                color = '#f97316'; text = 'Weak';
+                bars[0].style.background = color;
+            } else if (score === 2) {
+                color = '#facc15'; text = 'Moderate';
+                bars[0].style.background = color;
+                bars[1].style.background = color;
+            } else if (score === 3) {
+                color = '#38bdf8'; text = 'Strong';
+                bars[0].style.background = color;
+                bars[1].style.background = color;
+                bars[2].style.background = color;
+            } else if (score >= 4) {
+                color = '#34d399'; text = 'Very Secure';
+                bars.forEach(b => b.style.background = color);
+            }
+
+            strengthLabel.textContent = text;
+            strengthLabel.style.color = color;
+        }
+
+        function generateAndShowPassword() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&";
+            let pwd = "";
+            for (let i = 0; i < 14; i++) {
+                pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('generated-password-text').textContent = pwd;
+        }
+
+        function copyPassword() {
+            const text = document.getElementById('generated-password-text').textContent;
+            if (text.startsWith('Click')) return;
+            navigator.clipboard.writeText(text);
+            alert('Password copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
